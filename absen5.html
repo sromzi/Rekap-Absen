@@ -902,8 +902,12 @@
                 entryDiv.appendChild(deleteBtn);
                 container.appendChild(entryDiv);
                 
-                grandTotalTaigong += entry.totalTaigong;
-                grandTotalYigong += entry.totalYigong;
+                var mubanCount = parseInt(document.getElementById('mubanTaigong').value) || 0;
+                var gangjinCount = parseInt(document.getElementById('gangjinTaigong').value) || 0;
+                var yigongCount = parseInt(document.getElementById('yigong1').value) || 0;
+                
+                grandTotalTaigong = mubanCount + gangjinCount;
+                grandTotalYigong = yigongCount;
             }
             
             document.getElementById('summaryBox').style.display = 'flex';
