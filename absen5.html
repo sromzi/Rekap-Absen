@@ -170,6 +170,52 @@
             background-color: #f0fff4;
         }
         
+        .form-col select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background-color: #f0fff4;
+        }
+        
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #4CAF50;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .autocomplete-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        
+        .autocomplete-item:hover {
+            background-color: #f0fff4;
+        }
+        
+        .autocomplete-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .autocomplete-item small {
+            color: #7f8c8d;
+        }
+        
         .btn-container {
             display: flex;
             gap: 15px;
@@ -308,6 +354,10 @@
             margin-bottom: 15px;
             position: relative;
             transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
         }
         
         .data-entry:hover {
@@ -317,7 +367,7 @@
         
         .data-entry-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
@@ -340,6 +390,8 @@
             font-size: 14px;
             font-weight: bold;
             transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .btn-delete-entry:hover {
@@ -351,6 +403,7 @@
             color: #34495e;
             line-height: 1.8;
             white-space: pre-line;
+            flex: 1;
         }
         
         .toast {
@@ -400,6 +453,16 @@
                 align-items: stretch;
             }
             
+            .worker-item {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .worker-item input {
+                flex: 1;
+                max-width: 200px;
+            }
+            
             .btn-container {
                 flex-direction: column;
             }
@@ -412,6 +475,15 @@
             
             .btn-delete-entry {
                 width: 100%;
+            }
+            
+            .data-entry {
+                flex-direction: column;
+            }
+            
+            button[onclick="addMoreWork()"] {
+                width: 100%;
+                padding: 12px 20px !important;
             }
         }
     </style>
@@ -438,7 +510,7 @@
                     </div>
                     <div class="worker-item">
                         <span>移工</span>
-                        <input type="number" id="yigong1" min="0" value="0">
+                        <input type="number" id="yigong1" min="0" value="0" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
                         <span>人</span>
                     </div>
                 </div>
@@ -454,11 +526,14 @@
                 <div class="form-row">
                     <div class="form-col">
                         <label>地點</label>
-                        <input type="text" class="lokasi-input" placeholder="例: R1B02-1">
+                        <select class="lokasi-input" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; transition: all 0.3s; background-color: white; cursor: pointer;">
+                            <option value="">選擇地點</option>
+                        </select>
                     </div>
-                    <div class="form-col">
+                    <div class="form-col autocomplete-container">
                         <label>工作名稱</label>
-                        <input type="text" class="pekerjaan-input" placeholder="例: 頂板模板組立">
+                        <input type="text" class="pekerjaan-input" placeholder="輸入印尼語搜尋..." autocomplete="off">
+                        <div class="autocomplete-list" style="display: none;"></div>
                     </div>
                     <div class="form-col">
                         <label>台工</label>
@@ -511,6 +586,186 @@
         var dataList = [];
         var workItemCount = 1;
         
+        var pekerjaanList = [
+            {cn: '施工前準備工作', id: 'Persiapan kerja sebelum pelaksanaan'},
+            {cn: '整地及放樣', id: 'Pembersihan lahan & pengukuran (setting out)'},
+            {cn: '安全網拉設', id: 'Pemasangan safety net'},
+            {cn: '物料前置作業', id: 'Persiapan material'},
+            {cn: '模板前置作業施作', id: 'Persiapan pasang bekisting'},
+            {cn: '支撐架組立', id: 'Pasang perancah'},
+            {cn: '支撐架搭設', id: 'Pemasangan struktur penyangga'},
+            {cn: '支撐架調整', id: 'Penyetelan perancah'},
+            {cn: '支撐架拆架', id: 'Bongkar perancah'},
+            {cn: '底模及外腹翼模組立', id: 'Pasang bekisting dasar & sayap luar'},
+            {cn: '底模鋪設', id: 'Pemasangan form dasar'},
+            {cn: '底腹版模板組立', id: 'Pasang bekisting pelat bawah'},
+            {cn: '中隔梁模板組立', id: 'Pasang bekisting diafragma'},
+            {cn: '端隔梁模板組立', id: 'Pasang bekisting end diaphragm'},
+            {cn: '中隔梁底模組立', id: 'Pasang bekisting dasar diafragma'},
+            {cn: '中隔梁人孔預組', id: 'Pre-assembly lubang inspeksi diafragma'},
+            {cn: '腹板內模組立', id: 'Pasang bekisting dalam balok/pelat'},
+            {cn: '底腹板內頂模板組立', id: 'Pasang bekisting bagian dalam atas'},
+            {cn: '頂板模板組立', id: 'Pasang bekisting pelat atas'},
+            {cn: '模板吊運', id: 'Pengangkatan bekisting'},
+            {cn: '協助模板吊運', id: 'Bantuan pengangkatan bekisting'},
+            {cn: '模板物料吊運', id: 'Pengangkatan material bekisting'},
+            {cn: '外模整理', id: 'Perapihan bekisting luar'},
+            {cn: '外模拆除前置作業', id: 'Persiapan pembongkaran bekisting luar'},
+            {cn: '模板拆模', id: 'Bongkar bekisting'},
+            {cn: '底腹板拆模', id: 'Bongkar bekisting pelat bawah'},
+            {cn: '頂板拆模', id: 'Bongkar bekisting pelat atas'},
+            {cn: '外腹翼模調整', id: 'Penyetelan bekisting sayap luar'},
+            {cn: '外翼模推移調整', id: 'Penggeseran/adjust bekisting sayap luar'},
+            {cn: '翼模推模', id: 'Mendorong bekisting sayap'},
+            {cn: '穿越腹版PVC管安裝', id: 'Pasang pipa PVC tembus web'},
+            {cn: '箱梁內修飾', id: 'Finishing dalam box girder'},
+            {cn: '底腹板鋼筋綁紮及預力套管配置', id: 'Ikat besi pelat bawah + pasang duct prategang'},
+            {cn: '底腹版鋼筋綁紮', id: 'Ikat besi pelat bawah'},
+            {cn: '頂板鋼筋綁紮', id: 'Ikat besi pelat atas'},
+            {cn: '頂板鋼筋吊運', id: 'Pengangkatan besi ke pelat atas'},
+            {cn: '鋼筋加工', id: 'Fabrikasi besi'},
+            {cn: '鋼筋加工和搬運', id: 'Fabrikasi & pemindahan besi'},
+            {cn: '鋼筋加工和綁紮', id: 'Fabrikasi & pengikatan besi'},
+            {cn: '鋼筋場整理', id: 'Perapihan area besi'},
+            {cn: '鋼筋進料吊運', id: 'Pengangkatan material besi'},
+            {cn: 'RC墊塊鋪設', id: 'Pemasangan spacer beton'},
+            {cn: '預力套管安裝', id: 'Pasang duct prategang'},
+            {cn: '預力系統安裝', id: 'Instalasi sistem prategang'},
+            {cn: '預力施拉', id: 'Penarikan tendon (stressing)'},
+            {cn: '預力退線', id: 'Pelepasan tendon'},
+            {cn: '施拉預力套管灌漿', id: 'Grouting duct prategang'},
+            {cn: '底腹版澆置', id: 'Pengecoran pelat bawah'},
+            {cn: '底腹板混凝土澆置及養護', id: 'Cor & curing pelat bawah'},
+            {cn: '中隔梁混凝土澆置', id: 'Pengecoran diafragma'},
+            {cn: '頂板澆置前準備作業', id: 'Persiapan cor pelat atas'},
+            {cn: '頂板混凝土澆置及養護', id: 'Cor & curing pelat atas'},
+            {cn: '頂板養護', id: 'Curing pelat atas'},
+            {cn: '頂板作業前清潔', id: 'Pembersihan sebelum pekerjaan pelat'},
+            {cn: '頂板清潔', id: 'Pembersihan pelat atas'},
+            {cn: '橋面板混凝土養護', id: 'Curing pelat jembatan'},
+            {cn: '壓送車作業', id: 'Operasi concrete pump'},
+            {cn: '物料整理', id: 'Perapihan material'},
+            {cn: '物料整理缺失改善', id: 'Perbaikan/perapihan material'},
+            {cn: '物料吊運', id: 'Pengangkatan material'},
+            {cn: '鋼筋進料吊運(裝卸)', id: 'Pengangkatan & bongkar muat besi'},
+            {cn: '吊車作業', id: 'Operasi crane'},
+            {cn: '吊卡作業', id: 'Operasi hook/shackle'},
+            {cn: '壓送車人員', id: 'Personel concrete pump'},
+            {cn: '外觀修飾', id: 'Finishing tampak luar'},
+            {cn: '外觀修補', id: 'Perbaikan tampak luar'},
+            {cn: '底版修飾', id: 'Finishing pelat bawah'},
+            {cn: '完成', id: 'Selesai'},
+            {cn: '進行下一跨作業', id: 'Lanjut ke span berikutnya'}
+        ];
+        
+        var lokasiList = [
+            'R2B04-1',
+            'R2B04-2',
+            'R2B04',
+            'R2B01',
+            'R2B01-1',
+            'R2B01-2',
+            'R1B02-1',
+            'R1B02-2',
+            'L31B02-1',
+            'L31B02-2',
+            'L31B02-3',
+            'L31B02'
+        ];
+        
+        function initAutocomplete() {
+            var inputs = document.getElementsByClassName('pekerjaan-input');
+            
+            for (var i = 0; i < inputs.length; i++) {
+                (function(input) {
+                    input.addEventListener('input', function() {
+                        var container = this.closest('.autocomplete-container');
+                        var listDiv = container.querySelector('.autocomplete-list');
+                        var searchText = this.value.toLowerCase();
+                        
+                        if (searchText.length < 1) {
+                            listDiv.style.display = 'none';
+                            return;
+                        }
+                        
+                        var filtered = pekerjaanList.filter(function(item) {
+                            return item.id.toLowerCase().indexOf(searchText) > -1;
+                        });
+                        
+                        if (filtered.length === 0) {
+                            listDiv.style.display = 'none';
+                            return;
+                        }
+                        
+                        listDiv.innerHTML = '';
+                        filtered.forEach(function(item) {
+                            var div = document.createElement('div');
+                            div.className = 'autocomplete-item';
+                            div.innerHTML = '<strong>' + item.cn + '</strong><small>' + item.id + '</small>';
+                            div.onclick = function() {
+                                input.value = item.cn;
+                                listDiv.style.display = 'none';
+                            };
+                            listDiv.appendChild(div);
+                        });
+                        
+                        listDiv.style.display = 'block';
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        var container = this.closest('.autocomplete-container');
+                        var listDiv = container.querySelector('.autocomplete-list');
+                        setTimeout(function() {
+                            listDiv.style.display = 'none';
+                        }, 200);
+                    });
+                })(inputs[i]);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', initAutocomplete);
+        
+        function initLokasiDropdown() {
+            var selects = document.getElementsByClassName('lokasi-input');
+            
+            for (var i = 0; i < selects.length; i++) {
+                var select = selects[i];
+                if (select.options.length <= 1) {
+                    for (var j = 0; j < lokasiList.length; j++) {
+                        var option = document.createElement('option');
+                        option.value = lokasiList[j];
+                        option.textContent = lokasiList[j];
+                        select.appendChild(option);
+                    }
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initLokasiDropdown();
+        });
+        
+        function updateYigongTotal() {
+            var yigongInputs = document.getElementsByClassName('yigong-input');
+            var total = 0;
+            
+            for (var i = 0; i < yigongInputs.length; i++) {
+                total += parseInt(yigongInputs[i].value) || 0;
+            }
+            
+            document.getElementById('yigong1').value = total;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var container = document.getElementById('otherWorkContainer');
+            
+            container.addEventListener('input', function(e) {
+                if (e.target.classList.contains('yigong-input')) {
+                    updateYigongTotal();
+                }
+            });
+        });
+        
         function addMoreWork() {
             workItemCount++;
             var container = document.getElementById('otherWorkContainer');
@@ -519,11 +774,14 @@
             newRow.innerHTML = `
                 <div class="form-col">
                     <label>地點</label>
-                    <input type="text" class="lokasi-input" placeholder="例: R1B02-1">
+                    <select class="lokasi-input" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; transition: all 0.3s; background-color: white; cursor: pointer;">
+                        <option value="">選擇地點</option>
+                    </select>
                 </div>
-                <div class="form-col">
+                <div class="form-col autocomplete-container">
                     <label>工作名稱</label>
-                    <input type="text" class="pekerjaan-input" placeholder="例: 頂板模板組立">
+                    <input type="text" class="pekerjaan-input" placeholder="輸入印尼語搜尋..." autocomplete="off">
+                    <div class="autocomplete-list" style="display: none;"></div>
                 </div>
                 <div class="form-col">
                     <label>台工</label>
@@ -535,6 +793,8 @@
                 </div>
             `;
             container.appendChild(newRow);
+            initAutocomplete();
+            initLokasiDropdown();
         }
         
         function tambahData() {
@@ -542,20 +802,10 @@
             var gangjinTaigong = parseInt(document.getElementById('gangjinTaigong').value) || 0;
             var yigong1 = parseInt(document.getElementById('yigong1').value) || 0;
             
-            var now = new Date();
-            var tanggal = now.toLocaleDateString('zh-TW', { 
-                year: 'numeric', 
-                month: '2-digit', 
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
             var detail1 = '上構出工：模板台工*' + mubanTaigong + '人 鋼筋台工*' + gangjinTaigong + '人 (包含機預具駕駛)，移工*' + yigong1 + '人';
             
             var entryData = {
                 id: Date.now(),
-                tanggal: tanggal,
                 detail1: detail1,
                 otherItems: [],
                 totalTaigong: mubanTaigong + gangjinTaigong,
@@ -573,7 +823,7 @@
                 var taigong = parseInt(taigongInputs[i].value) || 0;
                 var yigong = parseInt(yigongInputs[i].value) || 0;
                 
-                if (lokasi && pekerjaan) {
+                if (pekerjaan) {
                     entryData.otherItems.push({
                         lokasi: lokasi,
                         namaPekerjaan: pekerjaan,
@@ -609,25 +859,6 @@
                 var entryDiv = document.createElement('div');
                 entryDiv.className = 'data-entry';
                 
-                var headerDiv = document.createElement('div');
-                headerDiv.className = 'data-entry-header';
-                
-                var dateSpan = document.createElement('span');
-                dateSpan.className = 'data-entry-date';
-                dateSpan.textContent = '【' + entry.tanggal + '】';
-                
-                var deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn-delete-entry';
-                deleteBtn.textContent = '🗑️ 刪除此筆';
-                deleteBtn.onclick = (function(id) {
-                    return function() {
-                        deleteEntry(id);
-                    };
-                })(entry.id);
-                
-                headerDiv.appendChild(dateSpan);
-                headerDiv.appendChild(deleteBtn);
-                
                 var contentDiv = document.createElement('div');
                 contentDiv.className = 'data-entry-content';
                 
@@ -637,14 +868,38 @@
                     contentText += '------分隔線------\n';
                     for (var j = 0; j < entry.otherItems.length; j++) {
                         var item = entry.otherItems[j];
-                        contentText += item.lokasi + '-' + item.namaPekerjaan + '：台工*' + item.taigong + ' 移工*' + item.yigong + '\n';
+                        var line = '';
+                        if (item.lokasi) {
+                            line += item.lokasi + ' ';
+                        }
+                        line += item.namaPekerjaan + '：';
+                        
+                        var workers = [];
+                        if (item.taigong > 0) {
+                            workers.push('台工*' + item.taigong);
+                        }
+                        if (item.yigong > 0) {
+                            workers.push('移工*' + item.yigong);
+                        }
+                        
+                        line += workers.join(' ') + '\n';
+                        contentText += line;
                     }
                 }
                 
                 contentDiv.textContent = contentText;
                 
-                entryDiv.appendChild(headerDiv);
+                var deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-delete-entry';
+                deleteBtn.textContent = '🗑️ 刪除';
+                deleteBtn.onclick = (function(id) {
+                    return function() {
+                        deleteEntry(id);
+                    };
+                })(entry.id);
+                
                 entryDiv.appendChild(contentDiv);
+                entryDiv.appendChild(deleteBtn);
                 container.appendChild(entryDiv);
                 
                 grandTotalTaigong += entry.totalTaigong;
@@ -675,11 +930,14 @@
                 <div class="form-row">
                     <div class="form-col">
                         <label>地點</label>
-                        <input type="text" class="lokasi-input" placeholder="例: R1B02-1">
+                        <select class="lokasi-input" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px; transition: all 0.3s; background-color: white; cursor: pointer;">
+                            <option value="">選擇地點</option>
+                        </select>
                     </div>
-                    <div class="form-col">
+                    <div class="form-col autocomplete-container">
                         <label>工作名稱</label>
-                        <input type="text" class="pekerjaan-input" placeholder="例: 頂板模板組立">
+                        <input type="text" class="pekerjaan-input" placeholder="輸入印尼語搜尋..." autocomplete="off">
+                        <div class="autocomplete-list" style="display: none;"></div>
                     </div>
                     <div class="form-col">
                         <label>台工</label>
@@ -692,6 +950,8 @@
                 </div>
             `;
             workItemCount = 1;
+            initAutocomplete();
+            initLokasiDropdown();
         }
         
         function clearAllData() {
@@ -716,14 +976,28 @@
                     output += '\n\n═══════════════════════════════\n\n';
                 }
                 
-                output += '【' + entry.tanggal + '】\n\n';
                 output += entry.detail1 + '\n';
                 
                 if (entry.otherItems.length > 0) {
                     output += '------分隔線------\n';
                     for (var j = 0; j < entry.otherItems.length; j++) {
                         var item = entry.otherItems[j];
-                        output += item.lokasi + '-' + item.namaPekerjaan + '：台工*' + item.taigong + ' 移工*' + item.yigong + '\n';
+                        var line = '';
+                        if (item.lokasi) {
+                            line += item.lokasi + ' ';
+                        }
+                        line += item.namaPekerjaan + '：';
+                        
+                        var workers = [];
+                        if (item.taigong > 0) {
+                            workers.push('台工*' + item.taigong);
+                        }
+                        if (item.yigong > 0) {
+                            workers.push('移工*' + item.yigong);
+                        }
+                        
+                        line += workers.join(' ') + '\n';
+                        output += line;
                     }
                 }
             }
