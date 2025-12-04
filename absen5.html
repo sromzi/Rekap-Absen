@@ -500,12 +500,12 @@
                 <div class="worker-inputs">
                     <div class="worker-item">
                         <span>模板台工</span>
-                        <input type="number" id="mubanTaigong" min="0" value="0">
+                        <input type="number" id="mubanTaigong" min="0" value="0" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
                         <span>人</span>
                     </div>
                     <div class="worker-item">
                         <span>鋼筋台工</span>
-                        <input type="number" id="gangjinTaigong" min="0" value="0">
+                        <input type="number" id="gangjinTaigong" min="0" value="0" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
                         <span>人</span>
                     </div>
                     <div class="worker-item">
@@ -588,74 +588,64 @@
         
         var pekerjaanList = [
             {cn: '施工前準備工作', id: 'Persiapan kerja sebelum pelaksanaan'},
-            {cn: '整地及放樣', id: 'Pembersihan lahan & pengukuran (setting out)'},
-            {cn: '安全網拉設', id: 'Pemasangan safety net'},
-            {cn: '物料前置作業', id: 'Persiapan material'},
-            {cn: '模板前置作業施作', id: 'Persiapan pasang bekisting'},
-            {cn: '支撐架組立', id: 'Pasang perancah'},
-            {cn: '支撐架搭設', id: 'Pemasangan struktur penyangga'},
-            {cn: '支撐架調整', id: 'Penyetelan perancah'},
-            {cn: '支撐架拆架', id: 'Bongkar perancah'},
-            {cn: '底模及外腹翼模組立', id: 'Pasang bekisting dasar & sayap luar'},
-            {cn: '底模鋪設', id: 'Pemasangan form dasar'},
-            {cn: '底腹版模板組立', id: 'Pasang bekisting pelat bawah'},
-            {cn: '中隔梁模板組立', id: 'Pasang bekisting diafragma'},
-            {cn: '端隔梁模板組立', id: 'Pasang bekisting end diaphragm'},
-            {cn: '中隔梁底模組立', id: 'Pasang bekisting dasar diafragma'},
-            {cn: '中隔梁人孔預組', id: 'Pre-assembly lubang inspeksi diafragma'},
+            {cn: '整地及放樣', id: 'Pembersihan lahan & pengukuran'},
+            {cn: '支撐架組立', id: 'Pasang perancah/penyangga (scaffolding)'},
+            {cn: '底模及外腹翼模組立', id: 'Pasang bekisting dasar & bekisting sayap'},
+            {cn: '底腹板鋼筋綁紮及預力套管配置', id: 'Ikat besi pelat bawah + pasang ducting prategang'},
             {cn: '腹板內模組立', id: 'Pasang bekisting dalam balok/pelat'},
-            {cn: '底腹板內頂模板組立', id: 'Pasang bekisting bagian dalam atas'},
+            {cn: '底腹板混凝土澆置及養護', id: 'Cor beton pelat bawah & curing'},
             {cn: '頂板模板組立', id: 'Pasang bekisting pelat atas'},
-            {cn: '模板吊運', id: 'Pengangkatan bekisting'},
-            {cn: '協助模板吊運', id: 'Bantuan pengangkatan bekisting'},
-            {cn: '模板物料吊運', id: 'Pengangkatan material bekisting'},
-            {cn: '外模整理', id: 'Perapihan bekisting luar'},
-            {cn: '外模拆除前置作業', id: 'Persiapan pembongkaran bekisting luar'},
-            {cn: '模板拆模', id: 'Bongkar bekisting'},
-            {cn: '底腹板拆模', id: 'Bongkar bekisting pelat bawah'},
-            {cn: '頂板拆模', id: 'Bongkar bekisting pelat atas'},
-            {cn: '外腹翼模調整', id: 'Penyetelan bekisting sayap luar'},
-            {cn: '外翼模推移調整', id: 'Penggeseran/adjust bekisting sayap luar'},
-            {cn: '翼模推模', id: 'Mendorong bekisting sayap'},
-            {cn: '穿越腹版PVC管安裝', id: 'Pasang pipa PVC tembus web'},
-            {cn: '箱梁內修飾', id: 'Finishing dalam box girder'},
-            {cn: '底腹板鋼筋綁紮及預力套管配置', id: 'Ikat besi pelat bawah + pasang duct prategang'},
+            {cn: '頂板鋼筋綁紮', id: 'Ikat besi pelat atas'},
+            {cn: '頂板混凝土澆置及養護', id: 'Cor beton pelat atas & curing'},
+            {cn: '施拉預力套管灌漿', id: 'Grouting duct prategang'},
+            {cn: '完成', id: 'Selesai'},
+            {cn: '進行下一跨作業', id: 'Lanjut ke span berikutnya'},
+            {cn: '底版模板組立', id: 'Pasang bekisting pelat dasar'},
+            {cn: '翼板模板組立', id: 'Pasang bekisting wing slab'},
+            {cn: '翼板調整', id: 'Penyetelan wing slab'},
+            {cn: '腹翼模高程放樣', id: 'Pengukuran elevasi bekisting sayap'},
+            {cn: '模板前置作業', id: 'Persiapan pekerjaan bekisting'},
+            {cn: '模板拆除', id: 'Bongkar bekisting'},
+            {cn: '內模拆除', id: 'Bongkar bekisting dalam'},
+            {cn: '模板調整', id: 'Penyetelan bekisting'},
+            {cn: '端隔梁模板組立', id: 'Pasang bekisting diafragma ujung'},
+            {cn: '中隔梁模板組立', id: 'Pasang bekisting diafragma tengah'},
+            {cn: '間隔梁模板組立', id: 'Pasang bekisting diafragma intermediate'},
+            {cn: '下構模板支援', id: 'Bantuan bekisting untuk struktur bawah'},
             {cn: '底腹版鋼筋綁紮', id: 'Ikat besi pelat bawah'},
             {cn: '頂板鋼筋綁紮', id: 'Ikat besi pelat atas'},
-            {cn: '頂板鋼筋吊運', id: 'Pengangkatan besi ke pelat atas'},
-            {cn: '鋼筋加工', id: 'Fabrikasi besi'},
-            {cn: '鋼筋加工和搬運', id: 'Fabrikasi & pemindahan besi'},
-            {cn: '鋼筋加工和綁紮', id: 'Fabrikasi & pengikatan besi'},
-            {cn: '鋼筋場整理', id: 'Perapihan area besi'},
-            {cn: '鋼筋進料吊運', id: 'Pengangkatan material besi'},
-            {cn: 'RC墊塊鋪設', id: 'Pemasangan spacer beton'},
-            {cn: '預力套管安裝', id: 'Pasang duct prategang'},
-            {cn: '預力系統安裝', id: 'Instalasi sistem prategang'},
-            {cn: '預力施拉', id: 'Penarikan tendon (stressing)'},
-            {cn: '預力退線', id: 'Pelepasan tendon'},
-            {cn: '施拉預力套管灌漿', id: 'Grouting duct prategang'},
+            {cn: '端隔梁鋼筋綁紮', id: 'Pembesian diafragma ujung'},
+            {cn: '中隔梁鋼筋綁紮', id: 'Pembesian diafragma tengah'},
+            {cn: '間隔梁鋼筋綁紮', id: 'Pembesian diafragma intermediate'},
+            {cn: '鋼筋加工', id: 'Pemotongan & perakitan besi'},
+            {cn: '鋼筋搬運', id: 'Pengangkutan besi'},
+            {cn: '預力鋼腱配置', id: 'Penataan tendon prategang'},
+            {cn: '預力套管安裝', id: 'Pemasangan duct prategang'},
             {cn: '底腹版澆置', id: 'Pengecoran pelat bawah'},
-            {cn: '底腹板混凝土澆置及養護', id: 'Cor & curing pelat bawah'},
-            {cn: '中隔梁混凝土澆置', id: 'Pengecoran diafragma'},
-            {cn: '頂板澆置前準備作業', id: 'Persiapan cor pelat atas'},
-            {cn: '頂板混凝土澆置及養護', id: 'Cor & curing pelat atas'},
-            {cn: '頂板養護', id: 'Curing pelat atas'},
-            {cn: '頂板作業前清潔', id: 'Pembersihan sebelum pekerjaan pelat'},
-            {cn: '頂板清潔', id: 'Pembersihan pelat atas'},
+            {cn: '頂板澆置', id: 'Pengecoran pelat atas'},
+            {cn: '壓送車澆置作業', id: 'Pengecoran menggunakan concrete pump'},
             {cn: '橋面板混凝土養護', id: 'Curing pelat jembatan'},
-            {cn: '壓送車作業', id: 'Operasi concrete pump'},
-            {cn: '物料整理', id: 'Perapihan material'},
-            {cn: '物料整理缺失改善', id: 'Perbaikan/perapihan material'},
-            {cn: '物料吊運', id: 'Pengangkatan material'},
-            {cn: '鋼筋進料吊運(裝卸)', id: 'Pengangkatan & bongkar muat besi'},
-            {cn: '吊車作業', id: 'Operasi crane'},
-            {cn: '吊卡作業', id: 'Operasi hook/shackle'},
-            {cn: '壓送車人員', id: 'Personel concrete pump'},
-            {cn: '外觀修飾', id: 'Finishing tampak luar'},
-            {cn: '外觀修補', id: 'Perbaikan tampak luar'},
-            {cn: '底版修飾', id: 'Finishing pelat bawah'},
-            {cn: '完成', id: 'Selesai'},
-            {cn: '進行下一跨作業', id: 'Lanjut ke span berikutnya'}
+            {cn: '底版高程放樣', id: 'Pengukuran elevasi pelat dasar'},
+            {cn: '翼板高程複核', id: 'Pengecekan ulang elevasi wing slab'},
+            {cn: '盤式支承點位放樣', id: 'Pengukuran titik bearing pad'},
+            {cn: '物料整理', id: 'Penataan material'},
+            {cn: '物料搬運', id: 'Pengangkutan material'},
+            {cn: '模板材料整理', id: 'Perapihan material bekisting'},
+            {cn: '鋼筋材料整理', id: 'Perapihan material pembesian'},
+            {cn: '安全網拉設', id: 'Pemasangan safety net'},
+            {cn: '預力施拉', id: 'Penarikan tendon prategang'},
+            {cn: '預力套管灌漿', id: 'Grouting duct prategang'},
+            {cn: '翼板作業', id: 'Pekerjaan wing slab'},
+            {cn: '外觀修補', id: 'Perbaikan tampilan beton'},
+            {cn: '混凝土修補', id: 'Repair beton'},
+            {cn: '拆模後修補', id: 'Repair setelah bongkar bekisting'},
+            {cn: '模板拆除與外觀修補', id: 'Bongkar bekisting & perbaikan tampilan'},
+            {cn: '頂板清潔', id: 'Pembersihan pelat atas'},
+            {cn: '作業面清潔', id: 'Pembersihan area kerja'},
+            {cn: '吊運作業', id: 'Pengangkatan dengan crane'},
+            {cn: '模板吊運', id: 'Pengangkatan bekisting'},
+            {cn: '鋼筋吊運', id: 'Pengangkatan besi'},
+            {cn: '作業支援', id: 'Pekerjaan support umum'}
         ];
         
         var lokasiList = [
@@ -672,6 +662,24 @@
             'L31B02-3',
             'L31B02'
         ];
+        
+        var pekerjaanPembesian = [
+            '底腹板鋼筋綁紮及預力套管配置',
+            '底腹版鋼筋綁紮',
+            '頂板鋼筋綁紮',
+            '頂板鋼筋吊運',
+            '鋼筋加工',
+            '鋼筋加工和搬運',
+            '鋼筋加工和綁紮',
+            '鋼筋場整理',
+            '鋼筋進料吊運',
+            '鋼筋進料吊運(裝卸)',
+            'RC墊塊鋪設'
+        ];
+        
+        function isPekerjaanPembesian(namaPekerjaan) {
+            return pekerjaanPembesian.indexOf(namaPekerjaan) !== -1;
+        }
         
         function initAutocomplete() {
             var inputs = document.getElementsByClassName('pekerjaan-input');
@@ -763,8 +771,35 @@
                 if (e.target.classList.contains('yigong-input')) {
                     updateYigongTotal();
                 }
+                if (e.target.classList.contains('taigong-input') || e.target.classList.contains('pekerjaan-input')) {
+                    updateTaigongCategories();
+                }
             });
         });
+        
+        function updateTaigongCategories() {
+            var pekerjaanInputs = document.getElementsByClassName('pekerjaan-input');
+            var taigongInputs = document.getElementsByClassName('taigong-input');
+            
+            var totalMuban = 0;
+            var totalGangjin = 0;
+            
+            for (var i = 0; i < pekerjaanInputs.length; i++) {
+                var pekerjaan = pekerjaanInputs[i].value.trim();
+                var taigong = parseInt(taigongInputs[i].value) || 0;
+                
+                if (pekerjaan && taigong > 0) {
+                    if (isPekerjaanPembesian(pekerjaan)) {
+                        totalGangjin += taigong;
+                    } else {
+                        totalMuban += taigong;
+                    }
+                }
+            }
+            
+            document.getElementById('mubanTaigong').value = totalMuban;
+            document.getElementById('gangjinTaigong').value = totalGangjin;
+        }
         
         function addMoreWork() {
             workItemCount++;
